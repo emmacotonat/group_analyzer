@@ -1,0 +1,12 @@
+name,nickname,gender,birth_year,integration_score,location,interests,relations_raw
+María García,María,F,1995,8.5,Madrid,"Música,Deportes,Literatura","Juan Pérez,Ana López"
+Juan Pérez,Juan,M,1993,9.0,Barcelona,"Deportes,Tecnología","María García,Pedro Martínez"
+Ana López,Ana,F,1997,7.5,Valencia,"Arte,Literatura","María García,Carlos Ruiz"
+Pedro Martínez,Pedro,M,1992,8.0,Sevilla,"Deportes,Música","Juan Pérez,Laura Sánchez"
+Carlos Ruiz,Carlos,M,1996,7.0,Bilbao,"Tecnología,Ciencia","Pedro Martínez,Ana López"
+Laura Sánchez,Laura,F,1994,8.5,Madrid,"Arte,Música","Carlos Ruiz,María García"
+David Fernández,David,M,1991,9.5,Barcelona,"Deportes,Tecnología","Laura Sánchez,Juan Pérez"
+Sofía Martín,Sofía,F,1998,7.5,Valencia,"Literatura,Arte","David Fernández,Ana López"
+Miguel Torres,Miguel,M,1993,8.0,Madrid,"Música,Deportes","Sofía Martín,Pedro Martínez"
+Elena Díaz,Elena,F,1996,8.5,Sevilla,"Arte,Literatura","Miguel Torres,Laura Sánchez"
+
