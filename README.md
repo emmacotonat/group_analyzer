@@ -2,18 +2,18 @@
 
 Sistema de análisis de relaciones y comunidades en grupos a partir de datos exportados de Google Forms.
 
-## 📋 Descripción
+## Descripción
 
 Este proyecto analiza las relaciones entre miembros de un grupo, construye un grafo dirigido de conexiones, detecta comunidades y genera visualizaciones interactivas.
 
-## 🚀 Instalación
+## Instalación
 
 1. Instalar las dependencias:
 ```bash
 pip install -r requirements.txt
 ```
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 group_analyzer/
@@ -34,7 +34,7 @@ group_analyzer/
 └── main.py                 # Script principal
 ```
 
-## 📊 Formato de Datos de Entrada
+## Formato de Datos de Entrada
 
 El archivo de entrada (CSV o XLSX) debe contener las siguientes columnas:
 
@@ -47,7 +47,7 @@ El archivo de entrada (CSV o XLSX) debe contener las siguientes columnas:
 - **interests**: Intereses separados por comas (ej: "Música,Deportes,Literatura")
 - **relations_raw**: Nombres de personas relacionadas, separados por comas (ej: "Juan Pérez,Ana López")
 
-## 🎯 Uso
+## Uso
 
 1. Coloca tu archivo CSV o XLSX en la carpeta `data/`
 2. Ejecuta el script principal:
@@ -62,7 +62,7 @@ El sistema:
 4. Calculará métricas de red (grado, centralidad, comunidades)
 5. Generará archivos de salida en `output/`
 
-## 📈 Métricas Calculadas
+## Métricas Calculadas
 
 - **Grado**: Número total de conexiones
 - **In-degree**: Conexiones entrantes
@@ -74,13 +74,13 @@ El sistema:
 - **Betweenness Centrality**: Centralidad de intermediación
 - **Closeness Centrality**: Centralidad de cercanía
 
-## 📤 Archivos de Salida
+## Archivos de Salida
 
 - **nodes.csv**: Información completa de cada persona con métricas
 - **edges.csv**: Relaciones dirigidas con pesos
 - **report.html**: Visualización interactiva del grafo con PyVis
 
-## 🔧 Dependencias
+## Dependencias
 
 - pandas: Manipulación de datos
 - networkx: Análisis de grafos
@@ -90,7 +90,7 @@ El sistema:
 - python-louvain: Detección de comunidades
 - openpyxl: Lectura de archivos Excel
 
-## 📝 Notas
+## Notas
 
 - Los nombres se normalizan automáticamente (sin tildes, minúsculas)
 - El fuzzy matching une nombres similares (ej: "María" y "Maria")
