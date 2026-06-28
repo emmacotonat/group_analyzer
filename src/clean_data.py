@@ -1,78 +1,78 @@
-"""
-Módulo para limpiar y normalizar datos
-"""
+"""Clean and normalise questionnaire data for social transparency analysis."""
+
+from __future__ import annotations
 
 import pandas as pd
-from src.utils import normalize_text, fuzzy_match_name, parse_interests
+
+from src.utils import RELATION_LAYERS, SCORE_COLUMNS, display_text, normalize_text, parse_interests, safe_numeric
 
 
-def clean_data(df):
-    """
-    Limpia y normaliza los datos del DataFrame
-    
-    Args:
-        df: DataFrame con datos crudos
-        
-    Returns:
-        DataFrame limpio y normalizado con ID único para cada persona
-    """
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a cleaned participant table with stable IDs and parsed attributes."""
     df_clean = df.copy()
-    
-    # Normalizar nombres
-    print("   - Normalizando nombres...")
-    df_clean['name'] = df_clean['name'].apply(normalize_text)
-    df_clean['nickname'] = df_clean['nickname'].apply(normalize_text)
-    
-    # Limpiar otros campos de texto
-    df_clean['location'] = df_clean['location'].apply(normalize_text)
-    
-    # Procesar intereses
-    print("   - Procesando intereses...")
-    df_clean['interests_list'] = df_clean['interests'].apply(parse_interests)
-    
-    # Convertir tipos numéricos
-    df_clean['birth_year'] = pd.to_numeric(df_clean['birth_year'], errors='coerce')
-    df_clean['integration_score'] = pd.to_numeric(df_clean['integration_score'], errors='coerce')
-    
-    # Aplicar fuzzy matching para unificar nombres duplicados
-    print("   - Aplicando fuzzy matching para unificar nombres...")
-    unique_names = df_clean['name'].unique()
-    name_mapping = {}
-    
-    for name in unique_names:
-        if not name:  # Saltar nombres vacíos
-            continue
-        
-        # Buscar si hay un nombre similar ya procesado
-        matched_name = None
-        for existing_name in name_mapping.values():
-            matched, score = fuzzy_match_name(name, [existing_name], threshold=85)
-            if matched:
-                matched_name = existing_name
-                break
-        
-        if matched_name:
-            name_mapping[name] = matched_name
-        else:
-            name_mapping[name] = name
-    
-    # Aplicar mapeo de nombres
-    df_clean['name'] = df_clean['name'].map(name_mapping).fillna(df_clean['name'])
-    
-    # Eliminar duplicados basados en nombre normalizado
-    print("   - Eliminando duplicados...")
-    df_clean = df_clean.drop_duplicates(subset=['name'], keep='first')
-    
-    # Generar ID único para cada persona
-    print("   - Generando IDs únicos...")
-    df_clean = df_clean.reset_index(drop=True)
-    df_clean['id'] = df_clean.index + 1
-    df_clean['id'] = 'P' + df_clean['id'].astype(str).str.zfill(4)
-    
-    # Reordenar columnas
-    columns_order = ['id', 'name', 'nickname', 'gender', 'birth_year',
-                     'integration_score', 'location', 'interests', 'interests_list', 'relations_raw']
-    df_clean = df_clean[[col for col in columns_order if col in df_clean.columns]]
-    
-    return df_clean
 
+    df_clean["display_name"] = df_clean["display_name"].apply(display_text)
+    df_clean["name"] = df_clean["name"].apply(display_text)
+    df_clean["name_normalized"] = df_clean["name"].apply(normalize_text)
+
+    # Remove empty identities and duplicated questionnaire rows.
+    df_clean = df_clean[df_clean["name_normalized"] != ""].copy()
+    df_clean = df_clean.drop_duplicates(subset=["name_normalized"], keep="first")
+    df_clean = df_clean.reset_index(drop=True)
+
+    # Stable participant identifiers. The public output can use these IDs instead of names.
+    if "participant_id" not in df_clean.columns:
+        df_clean["participant_id"] = [f"P{i:04d}" for i in range(1, len(df_clean) + 1)]
+    else:
+        df_clean["participant_id"] = df_clean["participant_id"].fillna("").astype(str)
+        missing = df_clean["participant_id"].str.strip() == ""
+        df_clean.loc[missing, "participant_id"] = [f"P{i:04d}" for i in range(1, missing.sum() + 1)]
+
+    df_clean["id"] = df_clean["participant_id"]
+
+    # Normalise common optional attributes.
+    for column in ["gender", "age_band", "role", "location", "group_context"]:
+        if column in df_clean.columns:
+            df_clean[column] = df_clean[column].apply(display_text)
+
+    if "interests" in df_clean.columns:
+        df_clean["interests_list"] = df_clean["interests"].apply(parse_interests)
+    else:
+        df_clean["interests"] = ""
+        df_clean["interests_list"] = [[] for _ in range(len(df_clean))]
+
+    for column in SCORE_COLUMNS:
+        if column in df_clean.columns:
+            df_clean[column] = safe_numeric(df_clean[column])
+
+    # Ensure relation columns exist, so downstream code can rely on a stable schema.
+    for column in RELATION_LAYERS:
+        if column not in df_clean.columns:
+            df_clean[column] = ""
+
+    preferred_order = [
+        "id",
+        "participant_id",
+        "display_name",
+        "name",
+        "name_normalized",
+        "gender",
+        "age_band",
+        "role",
+        "location",
+        "group_context",
+        "belonging_score",
+        "perceived_transparency",
+        "relational_clarity",
+        "psychological_safety",
+        "integration_score",
+        "isolation_score",
+        "interests",
+        "interests_list",
+        *RELATION_LAYERS.keys(),
+        "open_notes",
+    ]
+
+    existing = [column for column in preferred_order if column in df_clean.columns]
+    remaining = [column for column in df_clean.columns if column not in existing]
+    return df_clean[existing + remaining]
