@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Local outputs
+output/*.html
+output/*.csv
+output/*.json
+
+# Sensitive real datasets
+/data/real_*.csv
+/data/real_*.xlsx
+/data/private_*.csv
+/data/private_*.xlsx
+/data/*identifiable*.csv
+/data/*identifiable*.xlsx
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
